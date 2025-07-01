@@ -1,4 +1,4 @@
-# fff-gaisberg-widget
+# Gaisberg-Widget für Paragleiter in Salzburg
 Widget das aktuelle Windwerte am Gaisberg und TRA-Status am iPhone Homescreen darstellt.
 
 **Installation:** 
