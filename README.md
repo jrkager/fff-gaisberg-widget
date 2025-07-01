@@ -1,5 +1,5 @@
 # Gaisberg-Widget für Paragleiter in Salzburg
-Widget das aktuelle Windwerte am Gaisberg und TRA-Status am iPhone Homescreen darstellt.
+Widget, das aktuelle Windwerte am Gaisberg und TRA-Status am iPhone Homescreen darstellt.
 
 **Installation:** 
 - Scriptable installieren: https://apps.apple.com/dk/app/scriptable/id1405459188
