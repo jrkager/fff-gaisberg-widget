@@ -5,9 +5,9 @@ const req = new Request(url);
 const html = await req.loadString();
 
 // Extract windspeed & direction
-const windspeedMatch = html.match(/id="actual_windspeed".*?>([\d.]+).*?(\d{1,3}º).*?<span class=['"]topline_small['"]>(.*?)<\/span>/);
+const windspeedMatch = html.match(/id="actual_windspeed".*?>([\d.]+).*?(\d{1,3}(\.\d)?)º.*?<span class=['"]topline_small['"]>(.*?)<\/span>/);
 const windspeed = windspeedMatch ? windspeedMatch[1] + " km/h" : "N/A";
-const windDirection = windspeedMatch ? parseInt(windspeedMatch[2]) : null;
+const windDirection = windspeedMatch ? parseFloat(windspeedMatch[2]) : null;
 const windDirectionText = windspeedMatch ? windspeedMatch[3] : "N/A";
 
 // Extract max windspeed
