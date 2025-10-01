@@ -1,33 +1,30 @@
 // Scriptable iPhone Widget - FlyForFun Wind & TRA Info
 
-const url = "https://flyforfun.at/";
-const req = new Request(url);
-const html = await req.loadString();
+const url = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json";
+const data = await new Request(url).loadJSON();
 
 // Extract windspeed & direction
-const windspeedMatch = html.match(/id="actual_windspeed".*?>([\d.]+).*?(\d{1,3}(\.\d)?)º.*?<span class=['"]topline_small['"]>(.*?)<\/span>/);
-const windspeed = windspeedMatch ? windspeedMatch[1] + " km/h" : "N/A";
-const windDirection = windspeedMatch ? parseFloat(windspeedMatch[2]) : null;
-const windDirectionText = windspeedMatch ? windspeedMatch[3] : "N/A";
+const nord = data?.data?.measurements?.["Station_Nord"]?.Wind;
+const windSpeed = Number(nord?.actual_windspeed?.velocity);
+const windDirection = Number(nord?.actual_windspeed?.degrees);
+const windDirectionText = nord?.actual_windspeed?.direction;
 
 // Extract max windspeed
-const maxWindspeedMatch = html.match(/id="max_windspeed".*?>.*?([\d]+\.?[\d]*).*? km\/h/);
-const maxWindspeed = maxWindspeedMatch ? maxWindspeedMatch[1] + " km/h" : "N/A";
+const maxWindSpeed = Number(nord?.max_windspeed?.velocity);
 
 // Check TRA status
-const traMatch = html.match(/id="topbar_tra".*?background-color:\s?#([a-fA-F0-9]{6})/);
-const traColor = traMatch ? traMatch[1] : "";
-const traStatus = traColor === "d72621" ? "CLOSED" : "ACTIVE";
+const traStatus = (data?.data?.tra_status?.["TRA GAISBERG"]?.status || "").toUpperCase();
 
-// Try to extract ECET time
-let ecetMatch = html.match(/ECET.*?(\d{2}:\d{2})/);
-
-// If ECET not found, try BCMT instead
-if (!ecetMatch) {
-  ecetMatch = html.match(/BCMT.*?(\d{2}:\d{2})/);
+// ECET timestamp (unix seconds)
+const ecetTs = data?.data?.daytimes?.ECET?.time;
+// Convert to hh:mm
+let ecetTime = "N/A";
+if (ecetTs) {
+  const d = new Date(ecetTs * 1000);
+  const hh = d.getHours().toString().padStart(2, "0");
+  const mm = d.getMinutes().toString().padStart(2, "0");
+  ecetTime = `${hh}:${mm}`;
 }
-
-const ecetTime = ecetMatch ? ecetMatch[1] : "N/A";
 
 // Create widget
 let widget = new ListWidget();
@@ -54,14 +51,14 @@ if (windDirection !== null) {
 widget.addSpacer(7);
 
 // Windspeed
-let windText = widget.addText(`Wind: ${windspeed}`);
+let windText = widget.addText(`Wind: ${windSpeed} km/h`);
 windText.font = Font.systemFont(14);
 windText.textColor = Color.white();
 
 widget.addSpacer(3);
 
 // Max windspeed
-let maxWindText = widget.addText(`Max: ${maxWindspeed}`);
+let maxWindText = widget.addText(`Max: ${maxWindSpeed} km/h`);
 maxWindText.font = Font.systemFont(14);
 maxWindText.textColor = Color.white();
 
