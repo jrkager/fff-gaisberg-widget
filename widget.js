@@ -13,7 +13,17 @@ const windDirectionText = nord?.actual_windspeed?.direction;
 const maxWindSpeed = Number(nord?.max_windspeed?.velocity);
 
 // Check TRA status
-const traStatus = (data?.data?.tra_status?.["TRA GAISBERG"]?.status || "").toUpperCase();
+let traStatus = "";
+if (
+  data?.data?.tra_status?.["TRA SCHWARZENBERG A"]?.status === "active" ||
+  data?.data?.tra_status?.["TRA SCHWARZENBERG B"]?.status === "active"
+) {
+  traStatus = "SZB active";
+} else if (data?.data?.tra_status?.["TRA GAISBERG"]?.status === "active") {
+  traStatus = "GSB active";
+} else {
+  traStatus = "CLOSED";
+}
 
 // ECET timestamp (unix seconds)
 const ecetTs = data?.data?.daytimes?.ECET?.time;
