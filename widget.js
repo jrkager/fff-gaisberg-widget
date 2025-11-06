@@ -143,21 +143,15 @@ function addFooter (w, data) {
   // TRA
   const tra = getTRAStatus(data)
   const traColor = (tra.status === "CLOSED") ? COLOR_BAD : COLOR_OK
-  const traRowWrap = foot.addStack()
-  traRowWrap.addSpacer()
-  const traRow = traRowWrap.addStack()
-  traRow.centerAlignContent()
+  const traRow = foot.addStack()
+  traRow.layoutHorizontally()
   addLabel(traRow, `TRA: ${tra.label}`, Font.boldSystemFont(12), traColor)
-  traRowWrap.addSpacer()
 
   // ECET
   const ecet = getECET(data)
-  const ecetRowWrap = foot.addStack()
-  ecetRowWrap.addSpacer()
-  const ecetRow = ecetRowWrap.addStack()
-  ecetRow.centerAlignContent()
+  const ecetRow = foot.addStack()
+  ecetRow.layoutHorizontally()
   addLabel(ecetRow, `ECET: ${ecet}`, Font.mediumSystemFont(12), COLOR_TEXT)
-  ecetRowWrap.addSpacer()
 }
 
 // ===================== DATA =====================
