@@ -37,11 +37,16 @@ class FFFWidget {
     const head = w.addStack()
     head.layoutHorizontally()
     head.centerAlignContent()
-
-    addLabel(head, "Gaisberg", Font.boldSystemFont(14), COLOR_TEXT)
+    head.setPadding(5,5,0,0)
+    
+    const title = addLabel(head, "Gaisberg", Font.boldSystemFont(16), COLOR_TEXT)
     head.addSpacer()
-
-    addBusInfo(head, data)
+    
+    const busWrap = head.addStack()
+    busWrap.layoutHorizontally()
+    busWrap.centerAlignContent()
+    busWrap.setPadding(2, 0, 0, 7) // top, left, bottom, right
+    addBusInfo(busWrap, data)
 
     w.addSpacer(6)
 
@@ -79,21 +84,20 @@ function addBusInfo(parent, data) {
   s.centerAlignContent()
   s.spacing = 4
 
-  addLabel(s, "🚌", Font.systemFont(12), new Color('dddddd'))
-  addLabel(s, fmtTimeFlexible(time) || "—", Font.mediumSystemFont(12), COLOR_TEXT)
+  addLabel(s, "🚌", Font.systemFont(11), new Color('dddddd'))
+  addLabel(s, fmtTimeFlexible(time) || "—", Font.mediumSystemFont(11), COLOR_TEXT)
 
   if (delay > 0) {
-    addLabel(s, `+${delay}`, Font.mediumSystemFont(12), new Color("#ff3b30"))
+    addLabel(s, `+${delay}`, Font.mediumSystemFont(10), new Color("#ff3b30"))
   }
 }
 
 // Create a single “incidence-like” box for a station
 function addWindBox (parent, stationKey, stationName, data) {
   const station = data?.data?.measurements?.[stationKey]?.Wind
-  const avg = num(station?.actual_windspeed?.velocity)          // average wind (current)
-  const max = num(station?.max_windspeed?.velocity)             // max wind
-  const deg = Number(station?.actual_windspeed?.degrees)        // direction degrees
-  const dirTxt = station?.actual_windspeed?.direction || ""     // e.g. "SSW"
+  const avg = num(station?.actual_windspeed?.velocity)
+  const max = num(station?.max_windspeed?.velocity)
+  const deg = Number(station?.actual_windspeed?.degrees) || 0
 
   const box = parent.addStack()
   box.layoutHorizontally()
@@ -102,53 +106,52 @@ function addWindBox (parent, stationKey, stationName, data) {
   box.cornerRadius = BOX_CORNER_RADIUS
   box.setPadding(...BOX_PADDING)
 
-  // Left: labels
-  const left = box.addStack()
-  left.layoutVertically()
-  left.spacing = 2
+  // two-column text area
+  const txt = box.addStack()
+  txt.layoutHorizontally()
+  txt.centerAlignContent()
+  txt.spacing = 4
 
-  // Row 1: Station + Avg value (side-by-side)
-  const row1 = left.addStack()
-  row1.layoutHorizontally()
-  addLabel(row1, stationName, Font.boldSystemFont(13), COLOR_TEXT)
-  row1.addSpacer(8)
-  addLabel(row1, fmtWind(avg), Font.boldSystemFont(13), COLOR_TEXT)
+  const colL = txt.addStack()
+  colL.layoutVertically()
+  colL.spacing = 2
+  addLabel(colL, stationName, Font.boldSystemFont(13), COLOR_TEXT)            // bold station
+  addLabel(colL, "Max:", Font.mediumSystemFont(11), new Color('cfcfcf'))
 
-  // Row 2: Max value
-  const row2 = left.addStack()
-  row2.layoutHorizontally()
-  addLabel(row2, "Max:", Font.mediumSystemFont(11), new Color('cfcfcf'))
-  row2.addSpacer(4)
-  addLabel(row2, fmtWind(max), Font.mediumSystemFont(11), new Color('cfcfcf'))
+  const colR = txt.addStack()
+  colR.layoutVertically()
+  colR.spacing = 2
+  addLabel(colR, fmtWind(avg), Font.boldSystemFont(13), COLOR_TEXT)           // avg value
+  addLabel(colR, fmtWind(max), Font.mediumSystemFont(11), new Color('cfcfcf'))// max value aligned
 
-  // Right: arrow (direction)
+  // arrow
   box.addSpacer()
-  const arrowSize = 26
+  const arrowSize = 24
   const arrowImg = drawArrow(deg, arrowSize)
   const imgView = box.addImage(arrowImg)
   imgView.imageSize = new Size(arrowSize, arrowSize)
   imgView.rightAlignImage()
 
-  // Optional tiny direction text below arrow (kept subtle)
-  // (comment out if you don't want it)
-  // const dirStack = parent.addStack(); addLabel(dirStack, dirTxt, Font.mediumSystemFont(9), new Color('aaaaaa'))
-
   return box
 }
 
 function addFooter (w, data) {
+  const foot = w.addStack()
+  foot.layoutVertically()
+  foot.setPadding(0, 8, 0, 0)
+
   // TRA
   const tra = getTRAStatus(data)
   const traColor = (tra.status === "CLOSED") ? COLOR_BAD : COLOR_OK
-  const traRow = w.addStack()
+  const traRow = foot.addStack()
   traRow.layoutHorizontally()
-  addLabel(traRow, `TRA: ${tra.label}`, Font.boldSystemFont(12), traColor)
+  addLabel(traRow, TRA: ${tra.label}, Font.boldSystemFont(12), traColor)
 
   // ECET
   const ecet = getECET(data)
-  const ecetRow = w.addStack()
+  const ecetRow = foot.addStack()
   ecetRow.layoutHorizontally()
-  addLabel(ecetRow, `ECET: ${ecet}`, Font.mediumSystemFont(12), COLOR_TEXT)
+  addLabel(ecetRow, ECET: ${ecet}, Font.mediumSystemFont(12), COLOR_TEXT)
 }
 
 // ===================== DATA =====================
@@ -212,8 +215,16 @@ function drawArrow (direction = 0, arrowSize = 24) {
   ctx.opaque = false
   ctx.respectScreenScale = true
 
+/*
+		p4
+	/	p2	\
+p5		|	  p3
+		|
+		p1
+
+*/
   const p1 = new Point(0, -arrowSize / 2)
-  const p2 = new Point(0, arrowSize / 2 - 1.5)
+  const p2 = new Point(0, arrowSize / 2 - 0.5)
   const p3 = new Point(arrowSize / 4, arrowSize / 4)
   const p4 = new Point(0, arrowSize / 2)
   const p5 = new Point(-arrowSize / 4, arrowSize / 4)
@@ -263,5 +274,5 @@ function fmtTimeFlexible(v) {
   return String(v)
 }
 
-// ===================== RUN =====================
+// ===================== EXECUTE =====================
 await new FFFWidget().init()
