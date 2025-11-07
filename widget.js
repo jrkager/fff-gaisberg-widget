@@ -5,18 +5,23 @@
 const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json"
 const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/assets/json/wind_24h_multi.json";
 
-// Colors & style copied/similar to Corona widget "incidenceBox"
+// Detect appearance
+const IS_DARK = Device.isUsingDarkAppearance?.() ?? true
+
+// Colors & style
 const BOX_BG_COLOR = new Color('999999', 0.15) // -> new Color('999999', 0.1)
 const BOX_CORNER_RADIUS = 12
 const BOX_PADDING = [6, 8, 6, 8]               // setPadding(6,8,6,8)
-
-// Widget background
-const WIDGET_BG = new Color("#1c1c1e")
+const WIDGET_BG = IS_DARK ? new Color("#1c1c1e") : Color.white()
+const COLOR_TEXT = IS_DARK ? Color.white() : Color.black()
+const COLOR_MAX_TEXT = IS_DARK ? new Color('cfcfcf') : new Color('424242')
 // Footer colors
 const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
-const COLOR_TEXT = Color.white()
-
+// Drawings colors
+const ARROW_COLOR = IS_DARK ? Color.white() : Color.black()
+const CHART_LINE_COLOR_STR = IS_DARK ? "#ffffff" : "#000000"
+const CHART_BG   = IS_DARK ? new Color("#000000", 0.15) : new Color("#888888", 0.15)
 // Low-pass filter parameter
 const LP_ALPHA = 0.05; // smaller = stronger smoothing
 
@@ -36,9 +41,9 @@ class FFFWidget {
         size.height,
         seriesA_lp,
         seriesB_lp,
-        new Color("#ffffff", 0.2),  // color A
-        new Color("#ffffff", 0.15), // color B
-        new Color("#000000", 0.15), // color bg
+        new Color(CHART_LINE_COLOR_STR, 0.2),  // color A
+        new Color(CHART_LINE_COLOR_STR, 0.15), // color B
+        CHART_BG, // color bg
         undefined, 
         50 // max wind
       )
@@ -143,13 +148,13 @@ function addWindBox (parent, stationKey, stationName, data) {
   colL.layoutVertically()
   colL.spacing = 2
   addLabel(colL, stationName, Font.boldSystemFont(13), COLOR_TEXT)
-  addLabel(colL, "Max:", Font.mediumSystemFont(11), new Color('cfcfcf'))
+  addLabel(colL, "Max:", Font.mediumSystemFont(11), COLOR_MAX_TEXT)
 
   const colR = txt.addStack()
   colR.layoutVertically()
   colR.spacing = 2
   addLabel(colR, fmtWind(avg), Font.boldSystemFont(13), COLOR_TEXT)           // avg value
-  addLabel(colR, fmtWind(max), Font.mediumSystemFont(11), new Color('cfcfcf'))// max value aligned
+  addLabel(colR, fmtWind(max), Font.mediumSystemFont(11), COLOR_MAX_TEXT)// max value aligned
 
   // arrow
   box.addSpacer()
@@ -292,7 +297,7 @@ p5		|	  p3
   path.addLine(rotateAndShift(p5, direction, shift))
 
   ctx.addPath(path)
-  ctx.setStrokeColor(Color.white())
+  ctx.setStrokeColor(ARROW_COLOR)
   ctx.setLineWidth(3 * scale)
   ctx.strokePath()
 
