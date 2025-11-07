@@ -1,3 +1,6 @@
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: yellow; icon-glyph: circle;
 // Scriptable iPhone Widget - FlyForFun Wind & TRA Info (small)
 // Source data: https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json
 
@@ -5,11 +8,15 @@
 const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json"
 const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/assets/json/wind_24h_multi.json";
 
+// User parameters
+const param = (args.widgetParameter ?? "").toLowerCase().replace(/\s+/g, "")
+const SHOW_CHART = !param.includes("chart=off")
+
 // Colors & style
 const BOX_BG_COLOR = new Color('999999', 0.15) // -> new Color('999999', 0.1)
 const BOX_CORNER_RADIUS = 12
 const BOX_PADDING = [6, 8, 6, 8]               // setPadding(6,8,6,8)
-const WIDGET_BG = Color.dynamic(new Color("#1c1c1e"), Color.white())
+const WIDGET_BG = Color.dynamic(Color.white(), new Color("#1c1c1e"))
 const COLOR_TEXT = Color.dynamic(Color.black(), Color.white())
 const COLOR_MAX_TEXT = Color.dynamic(new Color('424242'), new Color('cfcfcf'))
 // Footer colors
@@ -17,11 +24,13 @@ const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
 // Drawings colors
 const ARROW_COLOR = Color.dynamic(Color.black(), Color.white())
-const CHART_LINE_COLOR_A = Color.dynamic(new Color("#000000", 0.2), new Color("#ffffff", 0.2))
-const CHART_LINE_COLOR_B = Color.dynamic(new Color("#000000", 0.15), new Color("#ffffff", 0.15))
+const CHART_LINE_COLOR_A = Color.dynamic(new Color("#000000", 0.15), new Color("#ffffff", 0.2))
+const CHART_LINE_COLOR_B = Color.dynamic(new Color("#000000", 0.1), new Color("#ffffff", 0.15))
 const CHART_BG   = Color.dynamic(new Color("#888888", 0.15), new Color("#000000", 0.15))
 // Low-pass filter parameter
 const LP_ALPHA = 0.05; // smaller = stronger smoothing
+// how many hours of wind history to include
+const LAST_H_WIND = 6
 
 // ===================== MAIN =====================
 class FFFWidget {
@@ -29,7 +38,11 @@ class FFFWidget {
     const data = await fetchFFF()
     const widget = await this.createWidget(data)
     try {
+      if (!SHOW_CHART)
+        throw new Error("Not showing chart")
       const { seriesA, seriesB } = await loadNordHistory()
+      if (!seriesA?.length || !seriesB?.length) 
+        throw new Error("Missing or empty data series for line chart")
       const seriesA_lp = lowPassEMA(seriesA)
       const seriesB_lp = lowPassEMA(seriesB)
       const size = new Size(300, 300)
@@ -47,6 +60,7 @@ class FFFWidget {
       )
       widget.backgroundImage = chart.draw()
     } catch (e) {
+      console.log(e)
       widget.backgroundColor = WIDGET_BG
     }
 
@@ -88,9 +102,11 @@ class FFFWidget {
 
     // (3) Footer: TRA + ECET
     const foot = w.addStack()
-    foot.layoutVertically()
+    foot.layoutHorizontally()
     foot.setPadding(0, 8, 5, 0)
-    addFooterContent(foot, data)
+    addTRAContent(foot, data)
+    foot.addSpacer()
+    addRefreshTime(foot)
 
     return w
   }
@@ -183,19 +199,33 @@ function applyArrowOverlay(box, degrees, arrowSize, paddingArr) {
   box.backgroundImage = ctx.getImage()
 }
 
-function addFooterContent (foot, data) {
+function addTRAContent (foot, data) {
+  const tracontent = foot.addStack()
+  tracontent.layoutVertically()
+  tracontent.centerAlignContent()
   // TRA
   const tra = getTRAStatus(data)
   const traColor = (tra.status === "CLOSED") ? COLOR_BAD : COLOR_OK
-  const traRow = foot.addStack()
+  const traRow = tracontent.addStack()
   traRow.layoutHorizontally()
   addLabel(traRow, `TRA: ${tra.label}`, Font.boldSystemFont(12), traColor)
 
   // ECET
   const ecet = getECET(data)
-  const ecetRow = foot.addStack()
+  const ecetRow = tracontent.addStack()
   ecetRow.layoutHorizontally()
   addLabel(ecetRow, `ECET: ${ecet}`, Font.mediumSystemFont(12), COLOR_TEXT)
+}
+
+function addRefreshTime(foot) {
+  const now = new Date()
+  const hh = String(now.getHours()).padStart(2,"0")
+  const mm = String(now.getMinutes()).padStart(2,"0")
+  const timeStr = `${hh}:${mm}`
+  const refreshRow = foot.addStack()
+  refreshRow.layoutVertically()
+  refreshRow.setPadding(20, 0, 0, 3)
+  addLabel(refreshRow, `⟳ ${timeStr}`, Font.regularMonospacedSystemFont(6), COLOR_TEXT)
 }
 
 // ===================== DATA =====================
@@ -209,10 +239,14 @@ async function fetchFFF () {
   }
 }
 
+
 async function loadNordHistory() {
   const res = await new Request(WIND_MULTI_URL).loadJSON();
+  const now = Date.now() / 1000
+  const cutoff = now - LAST_H_WIND * 3600
+
   const arr = (res?.data?.stations?.nord?.wind ?? [])
-    .filter(x => x && Number.isFinite(Number(x.timestamp)))
+    .filter(x => x && Number.isFinite(Number(x.timestamp)) && Number(x.timestamp) >= cutoff)
     .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 
   const seriesA = arr.map(x => Number(x.wind_velocity)).filter(Number.isFinite);
