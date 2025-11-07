@@ -72,7 +72,7 @@ class FFFWidget {
     const busWrap = head.addStack()
     busWrap.layoutHorizontally()
     busWrap.centerAlignContent()
-    busWrap.setPadding(4, 0, 0, 7) // top, left, bottom, right
+    busWrap.setPadding(3, 0, 0, 7) // top, left, bottom, right
     addBusInfo(busWrap, data)
 
     w.addSpacer(6)
