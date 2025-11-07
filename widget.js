@@ -24,8 +24,8 @@ const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
 // Drawings colors
 const ARROW_COLOR = Color.dynamic(Color.black(), Color.white())
-const CHART_LINE_COLOR_A = Color.dynamic(new Color("#000000", 0.15), new Color("#ffffff", 0.2))
-const CHART_LINE_COLOR_B = Color.dynamic(new Color("#000000", 0.1), new Color("#ffffff", 0.15))
+const CHART_LINE_COLOR_A = new Color("#8a8a8a", 0.5)
+const CHART_LINE_COLOR_B = new Color("#8a8a8a", 0.3)
 const CHART_BG   = Color.dynamic(new Color("#888888", 0.15), new Color("#000000", 0.15))
 // Low-pass filter parameter
 const LP_ALPHA = 0.05; // smaller = stronger smoothing
@@ -384,13 +384,13 @@ class LineChart {
     // Series A
     context.addPath(pathFor.call(this, this.valuesA));
     context.setStrokeColor(this.colorA);
-    context.setLineWidth(2);
+    context.setLineWidth(1.5);
     context.strokePath();
 
     // Series B
     context.addPath(pathFor.call(this, this.valuesB));
     context.setStrokeColor(this.colorB);
-    context.setLineWidth(1.5);
+    context.setLineWidth(1);
     context.strokePath();
 
     return context.getImage();
