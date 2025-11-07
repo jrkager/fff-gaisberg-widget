@@ -6,7 +6,7 @@ const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/ff
 const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/assets/json/wind_24h_multi.json";
 
 // Colors & style copied/similar to Corona widget "incidenceBox"
-const BOX_BG_COLOR = new Color('999999', 0.10) // -> new Color('999999', 0.1)
+const BOX_BG_COLOR = new Color('999999', 0.15) // -> new Color('999999', 0.1)
 const BOX_CORNER_RADIUS = 12
 const BOX_PADDING = [6, 8, 6, 8]               // setPadding(6,8,6,8)
 
@@ -26,25 +26,25 @@ class FFFWidget {
     const data = await fetchFFF()
     const widget = await this.createWidget(data)
     try {
-        const { seriesA, seriesB } = await loadNordHistory()
-        const seriesA_lp = lowPassEMA(seriesA)
-        const seriesB_lp = lowPassEMA(seriesB)
-        const size = new Size(300, 300)
+      const { seriesA, seriesB } = await loadNordHistory()
+      const seriesA_lp = lowPassEMA(seriesA)
+      const seriesB_lp = lowPassEMA(seriesB)
+      const size = new Size(300, 300)
 
-        const chart = new LineChart(
-            size.width,
-            size.height,
-            seriesA_lp,
-            seriesB_lp,
-            new Color("#ffffff", 0.2),  // color A
-            new Color("#ffffff", 0.15), // color B
-            new Color("#000000", 0.15), // color bg
-            undefined, 
-            50 // max wind
-        )
-        widget.backgroundImage = chart.draw()
+      const chart = new LineChart(
+        size.width,
+        size.height,
+        seriesA_lp,
+        seriesB_lp,
+        new Color("#ffffff", 0.2),  // color A
+        new Color("#ffffff", 0.15), // color B
+        new Color("#000000", 0.15), // color bg
+        undefined, 
+        50 // max wind
+      )
+      widget.backgroundImage = chart.draw()
     } catch (e) {
-        widget.backgroundColor = new Color("#1c1c1e")
+      widget.backgroundColor = WIDGET_BG
     }
 
     // Present
@@ -55,7 +55,6 @@ class FFFWidget {
 
   async createWidget (data) {
     const w = new ListWidget()
-//     w.backgroundColor = WIDGET_BG
     w.setPadding(6, 6, 6, 6)
 
     // (1) Title + Bus info (right side)
@@ -94,7 +93,7 @@ class FFFWidget {
   }
 }
 
-// ===================== BUILDERS (modular) =====================
+// ===================== BUILDERS =====================
 
 // Small helper similar to Corona's addLabelTo(view, text, font, color)
 function addLabel (view, text, font = null, color = null) {
@@ -143,7 +142,7 @@ function addWindBox (parent, stationKey, stationName, data) {
   const colL = txt.addStack()
   colL.layoutVertically()
   colL.spacing = 2
-  addLabel(colL, stationName, Font.boldSystemFont(13), COLOR_TEXT)            // bold station
+  addLabel(colL, stationName, Font.boldSystemFont(13), COLOR_TEXT)
   addLabel(colL, "Max:", Font.mediumSystemFont(11), new Color('cfcfcf'))
 
   const colR = txt.addStack()
@@ -154,13 +153,31 @@ function addWindBox (parent, stationKey, stationName, data) {
 
   // arrow
   box.addSpacer()
-  const arrowSize = 24
-  const arrowImg = drawArrow(deg, arrowSize)
-  const imgView = box.addImage(arrowImg)
-  imgView.imageSize = new Size(arrowSize, arrowSize)
-  imgView.rightAlignImage()
+  const arrowSize = 60
+  applyArrowOverlay(box, deg, arrowSize, BOX_PADDING)
 
   return box
+}
+
+function applyArrowOverlay(box, degrees, arrowSize, paddingArr) {
+  const padTop = paddingArr?.[0] ?? 6
+  const padRight = paddingArr?.[1] ?? 8
+  const padBottom = paddingArr?.[2] ?? 6
+
+  const W = 300
+  const H = Math.max((arrowSize + padTop + padBottom), 120)
+
+  const ctx = new DrawContext()
+  ctx.size = new Size(W, H)
+  ctx.opaque = false
+  ctx.respectScreenScale = true
+
+  const img = drawArrow(degrees, arrowSize)
+  const x = W - padRight - arrowSize
+  const y = (H - arrowSize) / 2
+  ctx.drawImageAtPoint(img, new Point(x, y))
+
+  box.backgroundImage = ctx.getImage()
 }
 
 function addFooterContent (foot, data) {
@@ -244,7 +261,8 @@ function rotateAndShift (point, angle, shift) {
   return new Point(x + shift[0], y + shift[1])
 }
 
-function drawArrow (direction = 0, arrowSize = 24) {
+function drawArrow (direction = 0, arrowSize = 24, scale = 1) {
+  arrowSize = arrowSize * scale;
   const ctx = new DrawContext()
   ctx.size = new Size(arrowSize, arrowSize)
   ctx.opaque = false
@@ -275,7 +293,7 @@ p5		|	  p3
 
   ctx.addPath(path)
   ctx.setStrokeColor(Color.white())
-  ctx.setLineWidth(1.5)
+  ctx.setLineWidth(3 * scale)
   ctx.strokePath()
 
   return ctx.getImage()
