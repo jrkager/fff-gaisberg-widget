@@ -5,23 +5,21 @@
 const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json"
 const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/assets/json/wind_24h_multi.json";
 
-// Detect appearance
-const IS_DARK = Device.isUsingDarkAppearance?.() ?? true
-
 // Colors & style
 const BOX_BG_COLOR = new Color('999999', 0.15) // -> new Color('999999', 0.1)
 const BOX_CORNER_RADIUS = 12
 const BOX_PADDING = [6, 8, 6, 8]               // setPadding(6,8,6,8)
-const WIDGET_BG = IS_DARK ? new Color("#1c1c1e") : Color.white()
-const COLOR_TEXT = IS_DARK ? Color.white() : Color.black()
-const COLOR_MAX_TEXT = IS_DARK ? new Color('cfcfcf') : new Color('424242')
+const WIDGET_BG = Color.dynamic(new Color("#1c1c1e"), Color.white())
+const COLOR_TEXT = Color.dynamic(Color.black(), Color.white())
+const COLOR_MAX_TEXT = Color.dynamic(new Color('424242'), new Color('cfcfcf'))
 // Footer colors
 const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
 // Drawings colors
-const ARROW_COLOR = IS_DARK ? Color.white() : Color.black()
-const CHART_LINE_COLOR_STR = IS_DARK ? "#ffffff" : "#000000"
-const CHART_BG   = IS_DARK ? new Color("#000000", 0.15) : new Color("#888888", 0.15)
+const ARROW_COLOR = Color.dynamic(Color.black(), Color.white())
+const CHART_LINE_COLOR_A = Color.dynamic(new Color("#000000", 0.2), new Color("#ffffff", 0.2))
+const CHART_LINE_COLOR_B = Color.dynamic(new Color("#000000", 0.15), new Color("#ffffff", 0.15))
+const CHART_BG   = Color.dynamic(new Color("#888888", 0.15), new Color("#000000", 0.15))
 // Low-pass filter parameter
 const LP_ALPHA = 0.05; // smaller = stronger smoothing
 
@@ -41,8 +39,8 @@ class FFFWidget {
         size.height,
         seriesA_lp,
         seriesB_lp,
-        new Color(CHART_LINE_COLOR_STR, 0.2),  // color A
-        new Color(CHART_LINE_COLOR_STR, 0.15), // color B
+        CHART_LINE_COLOR_A,  // color A
+        CHART_LINE_COLOR_B, // color B
         CHART_BG, // color bg
         undefined, 
         50 // max wind
@@ -282,7 +280,7 @@ p5		|	  p3
 
 */
   const p1 = new Point(0, -arrowSize / 2)
-  const p2 = new Point(0, arrowSize / 2 - 0.5)
+  const p2 = new Point(0, arrowSize / 2 + 2)
   const p3 = new Point(arrowSize / 4, arrowSize / 4)
   const p4 = new Point(0, arrowSize / 2)
   const p5 = new Point(-arrowSize / 4, arrowSize / 4)
@@ -298,7 +296,7 @@ p5		|	  p3
 
   ctx.addPath(path)
   ctx.setStrokeColor(ARROW_COLOR)
-  ctx.setLineWidth(3 * scale)
+  ctx.setLineWidth(4 * scale)
   ctx.strokePath()
 
   return ctx.getImage()
