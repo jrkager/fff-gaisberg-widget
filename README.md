@@ -12,11 +12,11 @@ Widget, das relevante Infos zum Fluggebiet Gaisberg in Echtzeit am iPhone Homesc
 - Auf dem Homescreen lange drücken, um ihn zu bearbeiten.
 - Oben links auf das „+“-Symbol tippen, dann nach unten zu „Scriptable“ scrollen, die erste Widget-Größe (klein) auswählen und Widget hinzufügen.
 - Im Bearbeitungsmodus auf das neue Widget tippen, um die Einstellungen zu öffnen.
-- Unter „Script“ das gerade erstellte Skript auswählen.
+- Unter „Script“ das gerade erstellte Skript („Gaisberg Widget“) auswählen.
 - Optional kann bei Interaktion (_When Interacting -> Open URL_) das Flugwetter https://flyforfun.at/flugwetter/ geöffnet werden.
 
 **Settings:**
-Einige Eigenschaften der Widgets können über die Parameter (im Bearbeitungsmodus auf das Widget klicken, ganz unten "Parameter") angepasst werden. Die folgenden Kommandos können kommagetrennt eingetragen werden:
+Einige Eigenschaften der Widgets können über die Parameter (im Bearbeitungsmodus auf das Widget klicken, ganz unten „Parameter“) angepasst werden. Die folgenden Kommandos können kommagetrennt eingetragen werden:
 - `disable-chart`: Deaktiviert die Anzeige des Windverlaufs im Hintergrund
 - `enable-light-mode`: Das Skript ändert dann je nach Einstellungen des iPhones (Dark Mode) seine Farben. Aufgrund von Einschränkungen des Systems wird der Pfeil dann in grau dargestellt, da die Anpassung seiner Farbe (schwarz/weiß) sonst der der Schrift um 15-20 Min. hinterherhinkt.
 
