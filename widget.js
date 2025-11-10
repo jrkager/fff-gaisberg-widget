@@ -1,6 +1,8 @@
 // Scriptable iPhone Widget - FlyForFun Wind & TRA Info (small)
 // Author: Johannes Kager
 
+// Version: 1.0 (2025-11-10)
+
 // ===================== CONFIG =====================
 const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json"
 const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/assets/json/wind_24h_multi.json";
