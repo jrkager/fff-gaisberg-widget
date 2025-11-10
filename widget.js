@@ -20,7 +20,7 @@ const COLOR_MAX_TEXT = dynOrDarkColor(new Color('424242'), new Color('cfcfcf'))
 const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
 // Drawings
-const ARROW_COLOR = ENABLE_LIGHT_MODE ? Color.gray() : Color.white()
+const ARROW_COLOR = dynOrDarkColor(Color.black(), Color.white())
 const CHART_LINE_COLOR_A = dynOrDarkColor(new Color("#8a8a8a", 0.5), new Color("#8a8a8a", 0.6))
 const CHART_LINE_COLOR_B = dynOrDarkColor(new Color("#8a8a8a", 0.3), new Color("#8a8a8a", 0.4))
 const CHART_BG   = dynOrDarkColor(new Color("#888888", 0.15), new Color("#212121"))
