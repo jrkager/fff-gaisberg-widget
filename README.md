@@ -8,7 +8,7 @@ Widget, das relevante Infos zum Fluggebiet Gaisberg in Echtzeit am iPhone Homesc
 
 **Installation:** 
 - Scriptable installieren: https://apps.apple.com/dk/app/scriptable/id1405459188
-- Skript laden durch Klick auf diesen Link und Befolgen der Anweisungen: [scriptdu.de](https://scriptdu.de?name=Gaisberg%20Widget&source=https%3A%2F%2Fgithub.com%2Fjrkager%2Ffff-gaisberg-widget%2Fraw%2Frefs%2Fheads%2Fmain%2Fwidget.js&docs=https%3A%2F%2Fgithub.com%2Fjrkager%2Ffff-gaisberg-widget%2Fblob%2Fmain%2FREADME.md)
+- Kopiere Javascript Code des Widgets direkt von [widget.js](https://raw.githubusercontent.com/jrkager/fff-gaisberg-widget/refs/heads/main/widget.js) und füge in einem neuen Scriptable script namens „Gaisberg Widget“ ein
 - Auf dem Homescreen lange drücken, um ihn zu bearbeiten.
 - Oben links auf das „+“-Symbol tippen, dann nach unten zu „Scriptable“ scrollen, die erste Widget-Größe (klein) auswählen und Widget hinzufügen.
 - Im Bearbeitungsmodus auf das neue Widget tippen, um die Einstellungen zu öffnen.
