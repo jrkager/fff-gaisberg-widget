@@ -1,10 +1,7 @@
 # Gaisberg-Widget für Paragleiter in Salzburg
-Widget, das relevante Infos zum Fluggebiet Gaisberg in Echtzeit am iPhone Homescreen darstellt. Darunter:
-- Nächste Busabfahrt Guggenthal -> Gaisberg
-- Windwerte Nord bzw. Ost-Station: Durschnitt und Maximal (letzte 15 Min.)
-- Windrichtungen als Pfeile
-- Windverlauf letzte 6h. Range vert. Achse: 0 - 50 km/h
-- TRA-Status Gaisberg/Schwarzenberg, ECET Time
+| | |
+| --- | --- |
+| Widget, das relevante Infos zum Fluggebiet Gaisberg in Echtzeit am iPhone Homescreen darstellt. Darunter:<ul><li>Nächste Busabfahrt Guggenthal -> Gaisberg</li><li>Windwerte Nord bzw. Ost-Station: Durschnitt und Maximal (letzte 15 Min.)</li><li>Windrichtungen als Pfeile</li><li>Windverlauf letzte 6h. Range vert. Achse: 0 - 50 km/h</li><li>TRA-Status Gaisberg/Schwarzenberg, ECET Time</li></ul> | ![Gaisberg Widget Screenshot](./screenshot1.jpg) |
 
 **Installation:** 
 - Scriptable installieren: https://apps.apple.com/dk/app/scriptable/id1405459188
