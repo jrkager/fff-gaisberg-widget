@@ -20,6 +20,11 @@ Einige Eigenschaften der Scripts können über die Parameter (im Bearbeitungsmod
 - `disable-chart`: Deaktiviert die Anzeige des Windverlaufs im Hintergrund
 - `enable-light-mode`: Das Skript ändert dann je nach Einstellungen des iPhones (Dark Mode) seine Farben. Aufgrund von Einschränkungen des Systems wird der Pfeil dann in grau dargestellt, da die Anpassung seiner Farbe (schwarz/weiß) sonst der der Schrift um 15-20 Min. hinterherhinkt.
 
+**Settings:**
+Einige Eigenschaften der Scripts können über die Parameter (im Bearbeitungsmodus auf das Widget klicken, ganz unten "Parameter") angepasst werden. Die folgenden Kommandos können kommagetrennt eingetragen werden:
+- `disable-chart`: Deaktiviert die Anzeige des Windverlaufs im Hintergrund
+- `enable-light-mode`: Das Skript ändert dann je nach Einstellungen des iPhones (Dark Mode) seine Farben. Aufgrund von Einschränkungen des Systems wird der Pfeil dann in grau dargestellt, da die Anpassung seiner Farbe (schwarz/weiß) sonst der der Schrift um 15-20 Min. hinterherhinkt.
+
 <br>
 
 ***Gaisberg Panomax Grid Widget:***
