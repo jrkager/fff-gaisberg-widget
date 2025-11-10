@@ -1,8 +1,5 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: yellow; icon-glyph: circle;
 // Scriptable iPhone Widget - FlyForFun Wind & TRA Info (small)
-// Source data: https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json
+// Author: Johannes Kager
 
 // ===================== CONFIG =====================
 const FFF_URL = "https://flyforfun.at/wp-content/themes/astra-child/core/json/fff.json"
@@ -10,61 +7,37 @@ const WIND_MULTI_URL = "https://flyforfun.at/wp-content/themes/astra-child/asset
 
 // User parameters
 const param = (args.widgetParameter ?? "").toLowerCase().replace(/\s+/g, "")
-const SHOW_CHART = !param.includes("chart=off")
+const SHOW_CHART = !param.includes("disable-chart")           // show wind history chart in background
+const ENABLE_LIGHT_MODE = param.includes("enable-light-mode") // enables the automatic change between light/dark mode. Makes the arrow gray
 
 // Colors & style
-const BOX_BG_COLOR = new Color('999999', 0.15) // -> new Color('999999', 0.1)
+const BOX_BG_COLOR = new Color('999999', 0.15)
 const BOX_CORNER_RADIUS = 12
-const BOX_PADDING = [6, 8, 6, 8]               // setPadding(6,8,6,8)
-const WIDGET_BG = Color.dynamic(Color.white(), new Color("#1c1c1e"))
-const COLOR_TEXT = Color.dynamic(Color.black(), Color.white())
-const COLOR_MAX_TEXT = Color.dynamic(new Color('424242'), new Color('cfcfcf'))
-// Footer colors
+const BOX_PADDING = [6, 8, 6, 8]
+const WIDGET_BG = dynOrDarkColor(Color.white(), new Color("#1c1c1e"))
+const COLOR_TEXT = dynOrDarkColor(Color.black(), Color.white())
+const COLOR_MAX_TEXT = dynOrDarkColor(new Color('424242'), new Color('cfcfcf'))
 const COLOR_OK = new Color("#32CD32")
 const COLOR_BAD = new Color("#d72621")
-// Drawings colors
-const ARROW_COLOR = Color.dynamic(Color.black(), Color.white())
-const CHART_LINE_COLOR_A = new Color("#8a8a8a", 0.5)
-const CHART_LINE_COLOR_B = new Color("#8a8a8a", 0.3)
-const CHART_BG   = Color.dynamic(new Color("#888888", 0.15), new Color("#000000", 0.15))
+// Drawings
+const ARROW_COLOR = ENABLE_LIGHT_MODE ? Color.gray() : Color.white()
+const CHART_LINE_COLOR_A = dynOrDarkColor(new Color("#8a8a8a", 0.5), new Color("#8a8a8a", 0.6))
+const CHART_LINE_COLOR_B = dynOrDarkColor(new Color("#8a8a8a", 0.3), new Color("#8a8a8a", 0.4))
+const CHART_BG   = dynOrDarkColor(new Color("#888888", 0.15), new Color("#212121"))
+
 // Low-pass filter parameter
 const LP_ALPHA = 0.05; // smaller = stronger smoothing
 // how many hours of wind history to include
 const LAST_H_WIND = 6
+// max wind for chart scaling (undefined = auto)
+const MAX_WIND = 50
 
 // ===================== MAIN =====================
 class FFFWidget {
   async init () {
     const data = await fetchFFF()
     const widget = await this.createWidget(data)
-    try {
-      if (!SHOW_CHART)
-        throw new Error("Not showing chart")
-      const { seriesA, seriesB } = await loadNordHistory()
-      if (!seriesA?.length || !seriesB?.length) 
-        throw new Error("Missing or empty data series for line chart")
-      const seriesA_lp = lowPassEMA(seriesA)
-      const seriesB_lp = lowPassEMA(seriesB)
-      const size = new Size(300, 300)
 
-      const chart = new LineChart(
-        size.width,
-        size.height,
-        seriesA_lp,
-        seriesB_lp,
-        CHART_LINE_COLOR_A,  // color A
-        CHART_LINE_COLOR_B, // color B
-        CHART_BG, // color bg
-        undefined, 
-        50 // max wind
-      )
-      widget.backgroundImage = chart.draw()
-    } catch (e) {
-      console.log(e)
-      widget.backgroundColor = WIDGET_BG
-    }
-
-    // Present
     Script.setWidget(widget)
     if (!config.runsInWidget) await widget.presentSmall()
     Script.complete()
@@ -108,18 +81,53 @@ class FFFWidget {
     foot.addSpacer()
     addRefreshTime(foot)
 
+    // (4) Optional: Wind chart background
+    if (SHOW_CHART) {
+      await drawWindChart(w)
+    } else {
+      w.backgroundColor = WIDGET_BG
+    }
+
     return w
   }
 }
 
 // ===================== BUILDERS =====================
 
-// Small helper similar to Corona's addLabelTo(view, text, font, color)
+// Small helper
 function addLabel (view, text, font = null, color = null) {
   const t = view.addText(String(text))
   if (font) t.font = font
   if (color) t.textColor = color
   return t
+}
+
+// Draw wind chart
+async function drawWindChart(parent) {
+  try {
+    const { seriesA, seriesB } = await loadNordHistory()
+    if (!seriesA?.length || !seriesB?.length) 
+      throw new Error("Missing or empty data series for line chart")
+    const seriesA_lp = lowPassEMA(seriesA)
+    const seriesB_lp = lowPassEMA(seriesB)
+    const size = new Size(300, 300)
+
+    const chart = new LineChart(
+      size.width,
+      size.height,
+      seriesA_lp,
+      seriesB_lp,
+      CHART_LINE_COLOR_A,  // color avg wind
+      CHART_LINE_COLOR_B, // color max wind
+      CHART_BG, // color bg
+      undefined, 
+      MAX_WIND
+    )
+    parent.backgroundImage = chart.draw()
+  } catch (e) {
+    console.log(e)
+    parent.backgroundColor = WIDGET_BG
+  }
 }
 
 // Add departure time of next bus
@@ -138,7 +146,7 @@ function addBusInfo(parent, data) {
   }
 }
 
-// Create a single “incidence-like” box for a station
+// Create a single box for a station
 function addWindBox (parent, stationKey, stationName, data) {
   const station = data?.data?.measurements?.[stationKey]?.Wind
   const avg = num(station?.actual_windspeed?.velocity)
@@ -152,7 +160,6 @@ function addWindBox (parent, stationKey, stationName, data) {
   box.cornerRadius = BOX_CORNER_RADIUS
   box.setPadding(...BOX_PADDING)
 
-  // two-column text area
   const txt = box.addStack()
   txt.layoutHorizontally()
   txt.centerAlignContent()
@@ -167,8 +174,8 @@ function addWindBox (parent, stationKey, stationName, data) {
   const colR = txt.addStack()
   colR.layoutVertically()
   colR.spacing = 2
-  addLabel(colR, fmtWind(avg), Font.boldSystemFont(13), COLOR_TEXT)           // avg value
-  addLabel(colR, fmtWind(max), Font.mediumSystemFont(11), COLOR_MAX_TEXT)// max value aligned
+  addLabel(colR, fmtWind(avg), Font.boldSystemFont(13), COLOR_TEXT)
+  addLabel(colR, fmtWind(max), Font.mediumSystemFont(11), COLOR_MAX_TEXT)
 
   // arrow
   box.addSpacer()
@@ -314,7 +321,7 @@ p5		|	  p3
 
 */
   const p1 = new Point(0, -arrowSize / 2)
-  const p2 = new Point(0, arrowSize / 2 + 2)
+  const p2 = new Point(0, arrowSize / 2 + 1.5)
   const p3 = new Point(arrowSize / 4, arrowSize / 4)
   const p4 = new Point(0, arrowSize / 2)
   const p5 = new Point(-arrowSize / 4, arrowSize / 4)
@@ -399,6 +406,14 @@ class LineChart {
 
 
 // ===================== UTILS =====================
+
+function dynOrDarkColor(lightModeCol, darkModeCol) {
+  if (ENABLE_LIGHT_MODE) {
+    return Color.dynamic(lightModeCol, darkModeCol)
+  } else {
+    return darkModeCol
+  }
+}
 
 function num (x) {
   const n = Number(x)
