@@ -27,3 +27,6 @@ Einige Eigenschaften der Widgets können über die Parameter (im Bearbeitungsmod
 
 ***Gaisberg Panomax Grid Widget:***
 - Zusätzlich steht ein Widget bereit, das relevante Ausschnitte aus dem aktuellen Panomax-Bild anzeigt. Leider kann auf dem Homescreen aufgrund Speicherlimits nur eine low-res Version dargestellt werden. Installation via ScriptDude: [scriptdu.de](https://scriptdu.de?name=Gaisberg%20Panomax%20Grid&source=https%3A%2F%2Fraw.githubusercontent.com%2Fjrkager%2Ffff-gaisberg-widget%2Frefs%2Fheads%2Fmain%2Fpanomax-grid.js&docs=https%3A%2F%2Fgithub.com%2Fjrkager%2Ffff-gaisberg-widget%2Fblob%2Fmain%2FREADME.md)
+
+***Android:***
+- Eine native Android-Version des Gaisberg-Widgets (Kotlin + Jetpack Glance) liegt im Ordner [`android/`](android/README.md). Anleitung zum lokalen Bauen und Testen (Android Studio, Emulator am Mac): [`android/TESTING.md`](android/TESTING.md).
